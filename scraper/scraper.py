@@ -8,6 +8,7 @@ from court_case import CourtCase
 from Neo4jModel import Neo4jModel
 import traceback
 import sys
+from lxml import etree
 
 # 'Волинська область',
 regions = ['Автономна Республіка Крим', 'Вінницька область', 'Дніпропетровська область',
@@ -72,17 +73,43 @@ class Scrapper:
                 f.write(e.__str__() + '\n')
         return res
 
+    # Handler is a method to handle each
+    def scrap_brute(self, regions, handler, limit=100, dumpfile=None, logfile=None):
+        dumpfile = dumpfile or {'filename': '', 'dump': False}
+        if dumpfile['dump']:
+            dump = open(dumpfile['filename'], 'w')
+        logfile = logfile or {'filename': '', 'log': False}
+        if logfile['log']:
+            log = open(logfile['filename'], 'w')
+        for reg in regions:
+            for r in self.scrap_one(reg):
+                try:
+                    handler(r, reg)
+                    if dumpfile['dump']:
+                        dump.write(r)
+                except BaseException as e:
+                    log.write(str(e))
+
 
 if __name__ == "__main__":
-    s = Scrapper()
-    n = Neo4jModel()
-    f = open('log', 'w')
-    # n.case(result[0], 'Волинська область')
-    for reg in regions:
-        for r in s.scrap_one(reg):
-            try:
-                n.case(r, reg)
-            except BaseException as e:
-                # print(str(e))
-                f.write(str(e))
-    f.close()
+    # s = Scrapper()
+    # n = Neo4jModel()
+    # f = open('log', 'w')
+    # # n.case(result[0], 'Волинська область')
+    # for reg in regions:
+    #     for r in s.scrap_one(reg):
+    #         try:
+    #             n.case(r, reg)
+    #         except BaseException as e:
+    #             # print(str(e))
+    #             f.write(str(e))
+    # f.close()
+    # r = requests.get('http://www.reyestr.court.gov.ua/Review/36761656')
+    with open('html_dump', 'r') as f:
+        text = f.read()
+    h = Parser().get_case(text)
+    # with open('html_dump', 'w') as f:
+    #     f.write(r.text)
+    with open('iframe', 'w') as f:
+        f.write(etree.tostring(h[0]).decode("utf-8"))
+    print(h)

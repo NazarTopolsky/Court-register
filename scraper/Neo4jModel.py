@@ -4,6 +4,8 @@ import py2neo
 from py2neo import Graph, Node, Relationship
 from court_case import CourtCase
 
+# TODO: filters for neo4j view
+
 class Neo4jModel:
     def __init__(self):
         self.graph = Graph()

@@ -22,6 +22,12 @@ class Parser:
                             res.append(el3)
         return res
 
+    def get_case(self, raw_data):
+        res = dict()
+        self.tree = html.fromstring(raw_data)
+        res = self.tree.xpath('//textarea')
+        return res
+
     def to_dict(self, elem):
         res = dict()
         res['Decision'] = elem[0].find('a').text.strip() if elem[0] is not None else ''
