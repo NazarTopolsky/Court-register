@@ -19,7 +19,6 @@ class Parser:
                 for el2 in el1:
                     if el2.text is not None and el2.get('id') == 'divresult':
                         for el3 in el2.find('table'):
-                            print(el3.body)
                             res.append(el3)
         return res
 

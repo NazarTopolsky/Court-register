@@ -8,9 +8,8 @@ from court_case import CourtCase
 
 def __timestamp__(_datetime):
     if _datetime is not None and _datetime != '' and not isinstance(_datetime, float):
-        print(_datetime.split('.'))
-        d = [float(x) for x in _datetime.split('.')]
-        return _datetime(d[2], d[1], d[0], 0, 0, 0).timestamp()
+        d = [int(x) for x in _datetime.split('.')]
+        return datetime(d[2], d[1], d[0], 0, 0, 0).timestamp()
     else:
         return _datetime
 
@@ -59,6 +58,7 @@ class Neo4jModel:
         __case["law_date"] = __timestamp__(court_case.law_date)
         __case["link"] = court_case.link
         __case["text"] = court_case.text
+        __case["case_number"] = court_case.case_number
         self.graph.create_unique(Relationship(__case, "RULED_BY", self.court(court_case.court_name, region_name)))
         self.graph.create_unique(Relationship(__case, "CARRIED_BY", self.chairman(court_case.chairman)))
         self.graph.create_unique(Relationship(__case, "OF_JUDGEMENT_TYPE", self.judgement_type(court_case.vr_type)))
