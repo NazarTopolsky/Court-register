@@ -15,38 +15,54 @@ def index():
         q = '?'
         try:
             for k in request.form:
-                q += '&' + k + '=' + request.form[k]
+                if k:
+                    q += '&' + k + '=' + request.form[k]
             print(q)
+            print(where_builder(request.form))
         except BaseException as e:
             print(e.__str__())
         return Response(dumps({'a': q}))
 
 
-@app.route('/')
+@app.route('/some')
 def search():
     pass
+
+
+def where_builder(params):
+    try:
+        result = 'WHERE '
+        if params['region']:
+            result += 'Region.name =~ ".*' + params['region'] + '.*" '
+        if params['court']:
+            result += 'Court =~ ".*' + params['court'] + '.*" '
+        if params['chairman']:
+            result += 'Chairman=~ ".*' + params['chairman'] + '.*" '
+    except BaseException as e:
+        result = ''
+    return result
 
 
 def query_builder(where_dict=None, limit=25, order=None):
     final_query = query_base
     if where_dict:
-        where_str = 'where '
+        where_str = 'WHERE '
         for k in where_dict:
             where_str += k + "='" + where_dict[k] + "' "
         final_query += where_str
     final_query += query_return
     if order:
-        final_query += 'order by ' + order + ' '
-    final_query += 'limit ' + str(limit)
+        final_query += 'ORDER BY ' + order + ' '
+    final_query += 'LIMIT ' + str(limit)
     return final_query
 
 
 query_base = """
-match (r:Region)<-[crt_r:SITUATED_IN]-(crt:Court)<-[c_crt:RULED_BY]-(c:Case)-[c_ch:CARRIED_BY]->(ch:Chairman)
-optional match (ct:Court_Decision_Type)-[c_ct]-c-[c_vt]-(vt:Court_Judgement_Type)
+MATCH (r:Region)<-[crt_r:SITUATED_IN]-(crt:Court)<-[c_crt:RULED_BY]-(c:Case)-[c_ch:CARRIED_BY]->(ch:Chairman)
+OPTIONAL MATCH (ct:Court_Decision_Type)-[c_ct]-c-[c_vt]-(vt:Court_Judgement_Type)
 """
 query_return = """
-return r, crt, c, ch, ct, vt, crt_r, c_crt, c_ch, c_ct, c_vt
+RETURN r, crt, c, ch, ct, vt, crt_r, c_crt, c_ch, c_ct, c_vt
 """
 
 query_sample = """
@@ -70,13 +86,14 @@ def relation(rel, cluster):
     return {'source': start, 'target': end, 'caption': type, 'cluster': cluster}
 
 
-@app.route("/graph.json")
+@app.route("/graph")
 def get_graph():
     query = query_builder()
     results = gdb.query(query,
                         params={"limit": request.args.get("limit", 100)})
     nodes = []
     rels = []
+    ids_dict = {}
     for region, court, case, chairman, ct, vt, crt_r, c_crt, c_ch, c_ct, c_vt in results:
         # region
         reg_node = node(region['data']['name'], 'Region', region['metadata']['id'], 1)
@@ -100,9 +117,9 @@ def get_graph():
             nodes.append(vt_node)
         # case
         # TODO: INFO!!!1
-        info = case['data']['id'] + ': ' + str(case['data']['law_date'])
-        case_node = node(info, 'Court case', case['metadata']['id'], 6)
+        case_node = node('№' + case['data']['id'], 'Court case', case['metadata']['id'], 6)
         if case_node not in nodes:
+            # print(case['data'])
             nodes.append(case_node)
         # crt_r
         crt_r_rel = relation(crt_r, 7)
@@ -124,6 +141,7 @@ def get_graph():
         c_vt_rel = relation(c_vt, 11)
         if c_vt_rel not in rels:
             rels.append(c_vt_rel)
+    # nodes.sort(key=lambda x: x.id)
     print(nodes)
     print(rels)
     try:

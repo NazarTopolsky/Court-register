@@ -1,60 +1,30 @@
 <html>
 <head>
     <link rel="stylesheet" href="http://cdn.graphalchemist.com/alchemy.min.css"/>
-    <style type="text/css">
-        .parent {
-            width: 100%;
-            overflow: hidden;
-        }
-
-        .container {
-            padding-left:10px;
-            overflow: auto;
-        }
-
-        .search-form {
-            padding-top:10px;
-            float: right;
-            width: 400px;
-            height: 400px;
-        }
-
-        input {
-            border-radius: 5px;
-            -moz-border-radius: 5px;
-            -khtml-border-radius: 5px;
-            -webkit-border-radius: 5px;
-        }
-    </style>
 </head>
+<style>
+    .search-form {
+        width: 100%;
+        text-align: center;
+    }
+</style>
 <body>
-<div class="parent">
-    <div class="search-form">
-        <form method="POST" action="">
-            Область<br>
-            <input type="text" name="region">
-            <br>
-            Суд:<br>
-            <input type="text" name="court">
-            <br>
-            Суддя:<br>
-            <input type="text" name="chairman">
-            <br>
-            Дата справи<br>
-            <div class="container">
-                Від:
-                <br>
-                <input type="text" name="dateFrom">
-                <br>
-                До:<br>
-                <input type="text" name="dateTo">
-                <br>
-            </div>
-            <input type="submit" name="search" value="Пошук">
-        </form>
-    </div>
-    <div class="alchemy" id="alchemy"></div>
+<div class="search-form">
+    <form method="POST" action="">
+        <p>Область</p>
+        <input type="text" name="Region">
+        Суд:<br>
+        <input type="text" name="Court">
+        <br>
+        Суддя:<br>
+        <input type="text" name="Chairman">
+        <br>
+        Дата справи<br>
+        <input type="text" name="Date">
+        <input type="submit" name="search" value="Пошук">
+    </form>
 </div>
+<div class="alchemy" id="alchemy"></div>
 
 <script src="http://cdn.graphalchemist.com/alchemy.min.js"></script>
 <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -69,8 +39,8 @@
         "#f83f00", "#f800df", "#ff8d8f", "#ffcd00", "#184fff", "#ff7e00"];
 
     var config = {
-        dataSource: 'graph',
-        forceLocked: true,
+        dataSource: 'graph.json',
+        forceLocked: false,
         directedEdges: true,
         edgesVisible: true,
         nodeTypes: {
@@ -79,7 +49,7 @@
         nodeStyle: {
             "all": {
                 "borderColor": "#127DC1",
-                "color": "#339ff3"
+                "color": "#ff8d8f"
             }
         },
         edgeTypes: {
@@ -100,11 +70,10 @@
         },
         cluster: false,
         clusterColours: colours,
-        edgeColours: colours,
         nodeCaption: "caption",
         edgeCaption: "caption",
         nodeCaptionsOnByDefault: "true",
-        edgeCaptionsOnByDefault: "true"
+        edgeCaptionsOnByDefault: "false"
     };
 
     alchemy = new Alchemy(config);

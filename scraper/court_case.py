@@ -27,4 +27,4 @@ class CourtCase:
         return self
 
     def __str__(self):
-        return self.link + ' ' + self.chairman
+        return self.link + ' ' + self.chairman + ' ' + self.reg_date

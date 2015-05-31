@@ -1,10 +1,19 @@
 __author__ = 'n'
 # TODO: non-unique chairman
-import py2neo
+from datetime import datetime
 from py2neo import Graph, Node, Relationship
 from court_case import CourtCase
 
 # TODO: filters for neo4j view
+
+def __timestamp__(_datetime):
+    if _datetime is not None and _datetime != '' and not isinstance(_datetime, float):
+        print(_datetime.split('.'))
+        d = [float(x) for x in _datetime.split('.')]
+        return _datetime(d[2], d[1], d[0], 0, 0, 0).timestamp()
+    else:
+        return _datetime
+
 
 class Neo4jModel:
     def __init__(self):
@@ -46,8 +55,8 @@ class Neo4jModel:
 
     def case(self, court_case, region_name):
         __case = self.graph.merge_one("Case", "id", court_case.decision_number)
-        __case["reg_date"] = court_case.reg_date
-        __case["law_date"] = court_case.law_date
+        __case["reg_date"] = __timestamp__(court_case.reg_date)
+        __case["law_date"] = __timestamp__(court_case.law_date)
         __case["link"] = court_case.link
         __case["text"] = court_case.text
         self.graph.create_unique(Relationship(__case, "RULED_BY", self.court(court_case.court_name, region_name)))
@@ -56,3 +65,21 @@ class Neo4jModel:
         self.graph.create_unique(Relationship(__case, "OF_DECISION_TYPE", self.decision_type(court_case.cs_type)))
         __case.push()
         return __case
+
+    def change_date(self):
+        query = "MATCH (n:Case) WHERE NOT (n.law_date='') RETURN n LIMIT 5"
+        id_list = []
+        for n in self.graph.cypher.execute(query):
+            id_list.append(n[0].__str__()[2:].split(':')[0])  # getting an id
+        for _id in id_list:
+            n = self.graph.node(str(_id))
+            n['law_date'] = __timestamp__(n['law_date'])
+            n.push()
+            #     print('HAHAHAHAHAHAHA')
+            print(n)
+        # for n in self.graph.find('Case', 'reg_date', '17.11.2014', 2):
+        #     print(n)
+        #     print(n.__dict__)
+        #     n['text'] = '  '
+        #     n.push()
+        # n[0]['text'] = '  '
