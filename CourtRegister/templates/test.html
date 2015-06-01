@@ -2,127 +2,253 @@
 <meta charset="utf-8">
 <script src="http://d3js.org/d3.v2.js?2.9.1"></script>
 <style>
+    html {
+        height: 100%;
+    }
 
-.link {
-  fill: none;
-  stroke: #666;
-  stroke-width: 1.5px;
-}
+    body {
+        min-height:100%;
+    }
 
-.node circle {
-  fill: #ccc;
-  stroke: #fff;
-  stroke-width: 1.5px;
-}
+    .left {
+        height:100%;
+    }
 
-text {
-  font: 10px sans-serif;
-  pointer-events: none;
-}
+    .link {
+        fill: none;
+        stroke: #666;
+        stroke-width: 1.5px;
+    }
 
+    .node circle {
+        fill: #ccc;
+        stroke: #fff;
+        stroke-width: 1.5px;
+    }
+
+    text {
+        font: 10px sans-serif;
+        pointer-events: none;
+    }
+
+    .parent {
+        width: 100%;
+        min-height:100%;
+        overflow: hidden;
+    }
+
+    .container {
+        padding-left:0px;
+        overflow: auto;
+    }
+
+    .search-form {
+        padding: 5px 5px 5px 5px;
+        float: left;
+        width: 21%;
+        height: 100%;
+        background-color: #efefef;
+        border-radius: 5px;
+        -moz-border-radius: 5px;
+        -khtml-border-radius: 5px;
+        -webkit-border-radius: 5px;
+    }
+
+    input {
+        border-radius: 5px;
+        -moz-border-radius: 5px;
+        -khtml-border-radius: 5px;
+        -webkit-border-radius: 5px;
+    }
+
+    select {
+        border-radius: 5px;
+        -moz-border-radius: 5px;
+        -khtml-border-radius: 5px;
+        -webkit-border-radius: 5px;
+    }
 </style>
+<head>
+    <title>Реєстр судових справ</title>
+</head>
 <body>
-<script>
+<div class="parent" id="parent">
+    <div class="left">
+        </div>
+        <div class="search-form">
+            <div>
+                Легенда:<br>
+                <div style="background-color:#C32323; color:black;">Судова справа</div>
+                <div style="background-color:#211E4E; color:white;">Суд</div>
+                <div style="background-color:#0AACEB; color:white;">Суддя</div>
+                <div style="background-color:#EFE40C; color:white;">Регіон</div>
+            </div>
+            <br>
+            <form method="POST" action="">
+                Область<br>
+                <input type="text" name="region" size="30">
+                <br>
+                Суд:<br>
+                <input type="text" name="court" size="30">
+                <br>
+                Суддя:<br>
+                <input type="text" name="chairman">
+                <br>
+                Дата справи<br>
+                <div class="container">
+                    Від:
+                    <input type="text" name="dateFrom" size="12">
+                    До:
+                    <input type="text" name="dateTo" size="12">
+                    <br>
+                </div>
+                <br>
+                <select name="caseTypes" multiple size='3'>
+                    <option value="Вирок">Вирок</option>
+                    <option value="Постанова">Постанова</option>
+                    <option value="Судовий наказ">Судовий наказ</option>
+                    <option value="Рішення">Рішення</option>
+                    <option value="Ухвала суду">Ухвала суду</option>
+                    <option value="Окрема ухвала">Окрема ухвала</option>
+                </select>
+                <br>
+                <input type="submit" name="search" value="Пошук">
+                <br>
+                <div class="desciption" id="description">
 
-// http://blog.thomsonreuters.com/index.php/mobile-patent-suits-graphic-of-the-day/
-var links = [
-  {source: "Microsoft", target: "Amazon", type: "licensing"},
-  {source: "Microsoft", target: "HTC", type: "licensing"},
-  {source: "Samsung", target: "Apple", type: "suit"},
-  {source: "Motorola", target: "Apple", type: "suit"},
-  {source: "Nokia", target: "Apple", type: "resolved"},
-  {source: "HTC", target: "Apple", type: "suit"},
-  {source: "Kodak", target: "Apple", type: "suit"},
-  {source: "Microsoft", target: "Barnes & Noble", type: "suit"},
-  {source: "Microsoft", target: "Foxconn", type: "suit"},
-  {source: "Oracle", target: "Google", type: "suit"},
-  {source: "Apple", target: "HTC", type: "suit"},
-  {source: "Microsoft", target: "Inventec", type: "suit"},
-  {source: "Samsung", target: "Kodak", type: "resolved"},
-  {source: "LG", target: "Kodak", type: "resolved"},
-  {source: "RIM", target: "Kodak", type: "suit"},
-  {source: "Sony", target: "LG", type: "suit"},
-  {source: "Kodak", target: "LG", type: "resolved"},
-  {source: "Apple", target: "Nokia", type: "resolved"},
-  {source: "Qualcomm", target: "Nokia", type: "resolved"},
-  {source: "Apple", target: "Motorola", type: "suit"},
-  {source: "Microsoft", target: "Motorola", type: "suit"},
-  {source: "Motorola", target: "Microsoft", type: "suit"},
-  {source: "Huawei", target: "ZTE", type: "suit"},
-  {source: "Ericsson", target: "ZTE", type: "suit"},
-  {source: "Kodak", target: "Samsung", type: "resolved"},
-  {source: "Apple", target: "Samsung", type: "suit"},
-  {source: "Kodak", target: "RIM", type: "suit"},
-  {source: "Nokia", target: "Qualcomm", type: "suit"}
-];
-
-var nodes = {};
-
-// Compute the distinct nodes from the links.
-links.forEach(function(link) {
-  link.source = nodes[link.source] || (nodes[link.source] = {name: link.source});
-  link.target = nodes[link.target] || (nodes[link.target] = {name: link.target});
-});
-
-var width = 960,
-    height = 500;
-
-var force = d3.layout.force()
-    .nodes(d3.values(nodes))
-    .links(links)
-    .size([width, height])
-    .linkDistance(60)
-    .charge(-50)
-    .on("tick", tick)
-    .gravity(0.01)
-    .start();
-
-var svg = d3.select("body").append("svg")
-    .attr("width", width)
-    .attr("height", height);
-
-var link = svg.selectAll(".link")
-    .data(force.links())
-  .enter().append("line")
-    .attr("class", "link");
-
-var node = svg.selectAll(".node")
-    .data(force.nodes())
-  .enter().append("g")
-    .attr("class", "node")
-    .on("mouseover", mouseover)
-    .on("mouseout", mouseout)
-    .call(force.drag);
-
-node.append("circle")
-    .attr("r", 8);
-
-node.append("text")
-    .attr("x", 12)
-    .attr("dy", ".35em")
-    .text(function(d) { return d.name; });
-
-function tick() {
-  link
-      .attr("x1", function(d) { return d.source.x; })
-      .attr("y1", function(d) { return d.source.y; })
-      .attr("x2", function(d) { return d.target.x; })
-      .attr("y2", function(d) { return d.target.y; });
-
-  node
-      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-}
-
-function mouseover() {
-  d3.select(this).select("circle").transition()
-      .duration(750)
-      .attr("r", 16);
-}
-
-function mouseout() {
-  d3.select(this).select("circle").transition()
-      .duration(750)
-      .attr("r", 8);
-}
-
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script id="graph_data" type="application/json">
+  {{ json }}
 </script>
+<script id="graph_drawer">
+    var labels = {
+        'Court case': {'colour': '#C32323', 'name': 'Судова справа'},
+        'Chairman': {'colour': '#0AACEB', 'name': 'Суддя'},
+        'Court': {'colour': '#211E4E', 'name': 'Суд'},
+        'Court Decision Type': {'colour': '#17BA12', 'name': 'Форма судочинства'},
+        'Court Judgement Type': {'colour': '#E55B11', 'name': 'Форма судового рішення'},
+        'Region': {'colour': '#EFE40C', 'name': 'Регіон'},
+        'CARRIED BY': {'colour': '#4B4B42', 'name': ''},
+        'OF DECISION TYPE': {'colour': '#4B4B42', 'name': ''},
+        'OF JUDGEMENT TYPE': {'colour': '#4B4B42', 'name': ''},
+        'RULED BY': {'colour': '#4B4B42', 'name': ''},
+        'SITUATED IN': {'colour': '#4B4B42', 'name': ''}
+    };
+
+    function htmlDecode(input) {
+        var e = document.createElement('div');
+        e.innerHTML = input;
+        return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
+    }
+
+    function tick() {
+        link
+                .attr("x1", function (d) {
+                    return d.source.x;
+                })
+                .attr("y1", function (d) {
+                    return d.source.y;
+                })
+                .attr("x2", function (d) {
+                    return d.target.x;
+                })
+                .attr("y2", function (d) {
+                    return d.target.y;
+                });
+
+        node
+                .attr("transform", function (d) {
+                    return "translate(" + d.x + "," + d.y + ")";
+                });
+    }
+
+    function mouseover() {
+        d3.select(this).select("circle").transition()
+                .duration(750)
+                .attr("r", 16);
+    }
+
+    function mouseout() {
+        d3.select(this).select("circle").transition()
+                .duration(750)
+                .attr("r", 8);
+    }
+
+    function dragstart(d) {
+        d3.select(this).classed("fixed", d.fixed = true);
+    }
+
+    var data = document.getElementById("graph_data");
+    var d = data.innerHTML;
+    var quote = htmlDecode("&#34;");
+    data.innerHTML = d.replace(/&#34;/g, quote);
+
+    var js = JSON.parse(data.innerHTML);
+    links = js['edges'];
+    nodes = js['nodes'];
+    links.forEach(function (link) {
+        link.source = nodes[link.source];
+        var t = link.target;
+        link.target = nodes[link.target];
+    });
+
+    var width = 960,
+            height = window.innerHeight;
+
+    var force = d3.layout.force()
+            .nodes(d3.values(nodes))
+            .links(links)
+            .size([width, height - 10])
+            .linkDistance(100)
+            .charge(-40)
+            .on("tick", tick)
+            .gravity(0.001)
+            .start();
+
+    var graph_layout = d3.select("#graph_layout")
+            .attr("width", width)
+            .attr("height", height);
+
+    var svg = d3.select("#parent").append("svg")
+            .attr("width", "78%")
+            .attr("height", height)
+            .style("float", "right");
+
+    var link = svg.selectAll(".link")
+            .data(force.links())
+            .enter().append("line")
+            .attr("class", "link");
+
+    var node = svg.selectAll(".node")
+            .data(force.nodes())
+            .enter().append("g")
+            .attr("class", "node")
+            .on("mouseover", mouseover)
+            .on("mouseout", mouseout)
+            .on("dblclick", function (d) {
+                alert('wow');
+            })
+            .on("click", function (d) {
+                alert('wow');
+                console.log(d);
+            })
+            .call(force.drag);
+
+    node.append("circle")
+            .attr("r", 8)
+            .style("fill", function(d) {
+                return labels[d.label].colour;
+            });
+
+    node.append("text")
+            .attr("x", 12)
+            .attr("dy", ".35em")
+            .text(function (d) {
+                return d.name;
+            });
+</script>
+</body>
