@@ -67,6 +67,10 @@
         -khtml-border-radius: 5px;
         -webkit-border-radius: 5px;
     }
+
+    .info {
+        background-color:#dddddd;
+    }
 </style>
 <head>
     <title>Реєстр судових справ</title>
@@ -78,7 +82,7 @@
         <div class="search-form">
             <div>
                 Легенда:<br>
-                <div style="background-color:#C32323; color:black;">Судова справа</div>
+                <div style="background-color:#C32323; color:white;">Судова справа</div>
                 <div style="background-color:#211E4E; color:white;">Суд</div>
                 <div style="background-color:#0AACEB; color:white;">Суддя</div>
                 <div style="background-color:#EFE40C; color:white;">Регіон</div>
@@ -115,7 +119,6 @@
                 <input type="submit" name="search" value="Пошук">
                 <br>
                 <div class="desciption" id="description">
-
                 </div>
             </form>
         </div>
@@ -178,8 +181,16 @@
                 .attr("r", 8);
     }
 
-    function dragstart(d) {
-        d3.select(this).classed("fixed", d.fixed = true);
+    function description(caption, data) {
+        var result = '<br><div class="info">';
+        result += '<h2>' + caption + '</h2>'
+        for (var key in data) {
+            if (key != 'name')
+                result += key + ": " + data[key] + "<br>";
+            else
+                result += data[key] + "<br>";
+        }
+        return result + "</div>";
     }
 
     var data = document.getElementById("graph_data");
@@ -233,8 +244,8 @@
                 alert('wow');
             })
             .on("click", function (d) {
-                alert('wow');
-                console.log(d);
+                d3.select("#description").
+                        html(description(d.name, d.data));
             })
             .call(force.drag);
 
