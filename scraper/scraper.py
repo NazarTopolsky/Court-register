@@ -8,7 +8,6 @@ import os
 from html_parser import Parser
 from court_case import CourtCase
 from Neo4jModel import Neo4jModel
-from lxml import etree
 
 regions = ['Автономна Республіка Крим', 'Вінницька область', 'Волинська область',
            'Дніпропетровська область', 'Донецька область', 'Житомирська область',

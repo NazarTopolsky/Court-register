@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-
 __author__ = 'n'
 
 from lxml import html, etree

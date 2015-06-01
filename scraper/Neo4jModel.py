@@ -1,10 +1,9 @@
 __author__ = 'n'
-# TODO: non-unique chairman
+
 from datetime import datetime
-from py2neo import Graph, Node, Relationship
+from py2neo import Graph, Relationship
 from court_case import CourtCase
 
-# TODO: filters for neo4j view
 
 def __timestamp__(_datetime):
     if _datetime is not None and _datetime != '' and not isinstance(_datetime, float):
@@ -75,11 +74,4 @@ class Neo4jModel:
             n = self.graph.node(str(_id))
             n['law_date'] = __timestamp__(n['law_date'])
             n.push()
-            #     print('HAHAHAHAHAHAHA')
             print(n)
-        # for n in self.graph.find('Case', 'reg_date', '17.11.2014', 2):
-        #     print(n)
-        #     print(n.__dict__)
-        #     n['text'] = '  '
-        #     n.push()
-        # n[0]['text'] = '  '
