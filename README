@@ -1,0 +1,32 @@
+Simple scraper for reyestr.court.gov.ua and site.
+Use the scraper to retrieve data from site, store it into Neo4j database. Then you can use the site to watch the results.
+The site is not particulary stable, but it works.
+
+Was written in Python. Due to the site containing UTF data Python3 was used, previous version compability is no guaranteed.
+
+Scraper was written using lxml library: http://lxml.de/
+Graph rendering: D3.js library: http://d3js.org/
+DB is accessed using neo4jrestclient: http://neo4j-rest-client.readthedocs.org/en/latest/info.html
+Data storage: Neo4j: http://neo4j.com/ (tested with 2.2.1 version. However, nothing should break off with other ones).
+Site operated by Flask: http://flask.pocoo.org/
+
+Dependencies:
+General: Neo4j
+JS: D3.js (included in repo)
+Python:
+	python3
+	Scraper:
+		requests: http://docs.python-requests.org/en/latest/
+		py2neo: http://py2neo.org/2.0/
+		lxml: http://lxml.de/
+	Site:
+		Flask: http://flask.pocoo.org/
+		neo4jrestclient: http://neo4j-rest-client.readthedocs.org/en/latest/info.html
+
+Using:
+First you need to collect data.
+Make sure you have Neo4j database running on default port (you have to configure source files if otherwise) and that you have working Internet connection.
+Assuming you are in project parent directory, run 'python3 scraper/scraper.py' to start. You don't have to do anything, script will notify you when it is done. Now you have info in your Neo4j database.
+To start server, type 'python3 CourtRegister/CourtRegister.py' (again, assuming you are in project parent directory). Follow the link from the output to view it.
+
+Feel free to use the project and its source code.

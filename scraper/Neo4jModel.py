@@ -2,7 +2,6 @@ __author__ = 'n'
 
 from datetime import datetime
 from py2neo import Graph, Relationship
-from court_case import CourtCase
 
 
 def __timestamp__(_datetime):

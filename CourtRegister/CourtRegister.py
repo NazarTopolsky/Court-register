@@ -1,6 +1,6 @@
 from json import dumps
 from neo4jrestclient.client import GraphDatabase
-from flask import Flask, Response, request, render_template, send_from_directory
+from flask import Flask, Response, request, render_template
 from datetime import datetime
 from re import findall
 
